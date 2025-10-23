@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS  # ← استيراد وتفعيل CORS
 from data import qawms_data, verses_data
 from functools import wraps
 from datetime import datetime, timezone
 import hashlib
-import secrets
 
 app = Flask(__name__)
+CORS(app)  # ← يسمح لأي دومين بالوصول للـAPI
 
 # --- الكاش (Caching) ---
 cache = {}
@@ -16,7 +17,7 @@ def cached(timeout=60):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             cache_key = hashlib.md5((request.path + str(request.args)).encode('utf-8')).hexdigest()
-            now = datetime.now(timezone.utc)  # الوقت الحالي
+            now = datetime.now(timezone.utc)
             if cache_key in cache:
                 data, timestamp = cache[cache_key]
                 if (now - timestamp).total_seconds() < timeout:
